@@ -11,7 +11,9 @@ namespace samarin {
     int y;
   };
 
-  std::vector< Circle > readCircles(std::istream & in);
+  using circles_t = std::vector< Circle >;
+
+  circles_t readCircles(std::istream & in);
 }
 
 #endif

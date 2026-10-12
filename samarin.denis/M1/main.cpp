@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
+#include "area.hpp"
 #include "circle.hpp"
 
 namespace {
@@ -34,7 +34,11 @@ int main(int argc, char ** argv)
     if (threads < 0 || seed < 0) {
       throw std::invalid_argument("Threads and seed must not be negative");
     }
-    const std::vector< samarin::Circle > circles = samarin::readCircles(std::cin);
+    const samarin::circles_t circles = samarin::readCircles(std::cin);
+    const std::size_t tryCount = static_cast< std::size_t >(tries);
+    const std::size_t seedValue = static_cast< std::size_t >(seed);
+    const samarin::areas_t areas = samarin::getAreas(circles, tryCount, seedValue);
+    std::cout << areas.first << ' ' << areas.second << '\n';
   } catch (const std::logic_error & e) {
     std::cerr << e.what() << '\n';
     return 1;

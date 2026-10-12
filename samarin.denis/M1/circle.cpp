@@ -1,11 +1,10 @@
 #include "circle.hpp"
 #include <istream>
 #include <stdexcept>
-#include <vector>
 
-std::vector< samarin::Circle > samarin::readCircles(std::istream & in)
+samarin::circles_t samarin::readCircles(std::istream & in)
 {
-  std::vector< Circle > circles;
+  circles_t circles;
   Circle circle{0, 0, 0};
   int ignored = 0;
   while (in >> circle.radius >> ignored >> circle.x >> circle.y) {
