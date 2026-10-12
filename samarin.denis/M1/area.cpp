@@ -9,48 +9,32 @@
 #include "circle.hpp"
 
 namespace {
-  struct Frame {
-    int left;
-    int bottom;
-    int right;
-    int top;
-  };
-
   using hits_t = std::pair< std::size_t, std::size_t >;
 
-  Frame getFrame(const samarin::circles_t & circles)
+  samarin::frame_t getFrame(const samarin::circles_t & circles)
   {
-    const samarin::Circle & first = circles.front();
-    Frame frame{first.x - first.radius, first.y - first.radius, first.x + first.radius, first.y + first.radius};
+    samarin::frame_t frame = circles.front().getFrame();
     for (const samarin::Circle & circle : circles) {
-      frame.left = std::min(frame.left, circle.x - circle.radius);
-      frame.bottom = std::min(frame.bottom, circle.y - circle.radius);
-      frame.right = std::max(frame.right, circle.x + circle.radius);
-      frame.top = std::max(frame.top, circle.y + circle.radius);
+      const samarin::frame_t circleFrame = circle.getFrame();
+      frame.min.x = std::min(frame.min.x, circleFrame.min.x);
+      frame.min.y = std::min(frame.min.y, circleFrame.min.y);
+      frame.max.x = std::max(frame.max.x, circleFrame.max.x);
+      frame.max.y = std::max(frame.max.y, circleFrame.max.y);
     }
     return frame;
   }
 
-  bool contains(const samarin::Circle & circle, double x, double y)
-  {
-    const double dx = x - circle.x;
-    const double dy = y - circle.y;
-    const double radius = circle.radius;
-    return (dx * dx) + (dy * dy) <= radius * radius;
-  }
-
-  hits_t countHits(const samarin::circles_t & circles, const Frame & frame, std::size_t tries, std::size_t seed)
+  hits_t countHits(const samarin::circles_t & circles, samarin::frame_t frame, std::size_t tries, std::size_t seed)
   {
     std::minstd_rand0 generator(seed);
-    std::uniform_real_distribution< double > xDistribution(frame.left, frame.right);
-    std::uniform_real_distribution< double > yDistribution(frame.bottom, frame.top);
+    std::uniform_real_distribution< double > xDistribution(frame.min.x, frame.max.x);
+    std::uniform_real_distribution< double > yDistribution(frame.min.y, frame.max.y);
     hits_t hits{0, 0};
     for (std::size_t i = 0; i < tries; ++i) {
-      const double x = xDistribution(generator);
-      const double y = yDistribution(generator);
-      const auto isInside = [x, y](const samarin::Circle & circle)
+      const samarin::point_t point{xDistribution(generator), yDistribution(generator)};
+      const auto isInside = [point](const samarin::Circle & circle)
       {
-        return contains(circle, x, y);
+        return circle.contains(point);
       };
       const std::size_t inside = std::count_if(circles.cbegin(), circles.cend(), isInside);
       if (inside > 0) {
@@ -69,7 +53,7 @@ samarin::areas_t samarin::getAreas(const circles_t & circles, std::size_t thread
   if (circles.empty()) {
     return {0.0, 0.0};
   }
-  const Frame frame = getFrame(circles);
+  const frame_t frame = getFrame(circles);
   const std::size_t workers = std::max< std::size_t >(threads, 1);
   std::vector< std::future< hits_t > > futures;
   futures.reserve(workers);
@@ -83,8 +67,8 @@ samarin::areas_t samarin::getAreas(const circles_t & circles, std::size_t thread
     total.first += hits.first;
     total.second += hits.second;
   }
-  const double width = frame.right - frame.left;
-  const double height = frame.top - frame.bottom;
+  const double width = frame.max.x - frame.min.x;
+  const double height = frame.max.y - frame.min.y;
   const double frameArea = width * height;
   const double count = tries;
   return {frameArea * total.first / count, frameArea * total.second / count};
