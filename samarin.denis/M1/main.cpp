@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include "area.hpp"
@@ -38,6 +39,7 @@ int main(int argc, char ** argv)
     const std::size_t tryCount = static_cast< std::size_t >(tries);
     const std::size_t seedValue = static_cast< std::size_t >(seed);
     const samarin::areas_t areas = samarin::getAreas(circles, tryCount, seedValue);
+    std::cout.precision(std::numeric_limits< double >::max_digits10);
     std::cout << areas.first << ' ' << areas.second << '\n';
   } catch (const std::logic_error & e) {
     std::cerr << e.what() << '\n';
