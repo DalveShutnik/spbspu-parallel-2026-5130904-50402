@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include "circle.hpp"
 
 namespace {
   long long parseInteger(const char * str)
@@ -32,6 +34,7 @@ int main(int argc, char ** argv)
     if (threads < 0 || seed < 0) {
       throw std::invalid_argument("Threads and seed must not be negative");
     }
+    const std::vector< samarin::Circle > circles = samarin::readCircles(std::cin);
   } catch (const std::logic_error & e) {
     std::cerr << e.what() << '\n';
     return 1;
