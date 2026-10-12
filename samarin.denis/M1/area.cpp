@@ -63,6 +63,9 @@ namespace {
 
 samarin::areas_t samarin::getAreas(const circles_t & circles, std::size_t tries, std::size_t seed)
 {
+  if (circles.empty()) {
+    return {0.0, 0.0};
+  }
   const Frame frame = getFrame(circles);
   const hits_t hits = countHits(circles, frame, tries, seed);
   const double width = frame.right - frame.left;
