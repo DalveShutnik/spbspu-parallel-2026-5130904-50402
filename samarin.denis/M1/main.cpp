@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -45,5 +46,8 @@ int main(int argc, char ** argv)
   } catch (const std::logic_error & e) {
     std::cerr << e.what() << '\n';
     return 1;
+  } catch (const std::exception & e) {
+    std::cerr << "Internal error: " << e.what() << '\n';
+    return 2;
   }
 }
