@@ -41,7 +41,7 @@ namespace {
 
   hits_t countHits(const samarin::circles_t & circles, const Frame & frame, std::size_t tries, std::size_t seed)
   {
-    std::default_random_engine generator(seed);
+    std::minstd_rand0 generator(seed);
     std::uniform_real_distribution< double > xDistribution(frame.left, frame.right);
     std::uniform_real_distribution< double > yDistribution(frame.bottom, frame.top);
     hits_t hits{0, 0};
