@@ -36,9 +36,10 @@ int main(int argc, char ** argv)
       throw std::invalid_argument("Threads and seed must not be negative");
     }
     const samarin::circles_t circles = samarin::readCircles(std::cin);
+    const std::size_t threadCount = static_cast< std::size_t >(threads);
     const std::size_t tryCount = static_cast< std::size_t >(tries);
     const std::size_t seedValue = static_cast< std::size_t >(seed);
-    const samarin::areas_t areas = samarin::getAreas(circles, tryCount, seedValue);
+    const samarin::areas_t areas = samarin::getAreas(circles, threadCount, tryCount, seedValue);
     std::cout.precision(std::numeric_limits< double >::max_digits10);
     std::cout << areas.first << ' ' << areas.second << '\n';
   } catch (const std::logic_error & e) {

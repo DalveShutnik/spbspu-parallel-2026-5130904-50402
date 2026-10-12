@@ -1,8 +1,11 @@
 #include "area.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <functional>
+#include <future>
 #include <random>
 #include <utility>
+#include <vector>
 #include "circle.hpp"
 
 namespace {
@@ -61,16 +64,28 @@ namespace {
   }
 }
 
-samarin::areas_t samarin::getAreas(const circles_t & circles, std::size_t tries, std::size_t seed)
+samarin::areas_t samarin::getAreas(const circles_t & circles, std::size_t threads, std::size_t tries, std::size_t seed)
 {
   if (circles.empty()) {
     return {0.0, 0.0};
   }
   const Frame frame = getFrame(circles);
-  const hits_t hits = countHits(circles, frame, tries, seed);
+  const std::size_t workers = std::max< std::size_t >(threads, 1);
+  std::vector< std::future< hits_t > > futures;
+  futures.reserve(workers);
+  for (std::size_t i = 0; i < workers; ++i) {
+    const std::size_t part = (tries / workers) + (i < tries % workers ? 1 : 0);
+    futures.push_back(std::async(std::launch::async, countHits, std::cref(circles), frame, part, seed + i));
+  }
+  hits_t total{0, 0};
+  for (std::future< hits_t > & future : futures) {
+    const hits_t hits = future.get();
+    total.first += hits.first;
+    total.second += hits.second;
+  }
   const double width = frame.right - frame.left;
   const double height = frame.top - frame.bottom;
   const double frameArea = width * height;
   const double count = tries;
-  return {frameArea * hits.first / count, frameArea * hits.second / count};
+  return {frameArea * total.first / count, frameArea * total.second / count};
 }
