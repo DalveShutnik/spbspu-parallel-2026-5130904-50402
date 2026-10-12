@@ -1,34 +1,19 @@
 #ifndef CIRCLE_HPP
 #define CIRCLE_HPP
 
-#include <iosfwd>
-#include <vector>
+#include "shape.hpp"
 
 namespace samarin {
-  struct point_t {
-    double x;
-    double y;
-  };
-
-  struct frame_t {
-    point_t min;
-    point_t max;
-  };
-
-  class Circle {
+  class Circle final: public Shape {
   public:
     Circle(double radius, point_t center);
-    bool contains(point_t point) const noexcept;
-    frame_t getFrame() const noexcept;
+    bool contains(point_t point) const noexcept override;
+    frame_t getFrame() const noexcept override;
 
   private:
     double radius_;
     point_t center_;
   };
-
-  using circles_t = std::vector< Circle >;
-
-  circles_t readCircles(std::istream & in);
 }
 
 #endif
